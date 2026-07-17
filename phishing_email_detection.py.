@@ -1,0 +1,68 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.pipeline import Pipeline
+
+# Sample dataset
+data = {
+    "email": [
+        "Congratulations! You have won a free iPhone. Click here now!",
+        "Your bank account has been suspended. Verify immediately.",
+        "Meeting scheduled tomorrow at 10 AM.",
+        "Project report has been attached for review.",
+        "Claim your prize by clicking this link.",
+        "Lunch with the team at 1 PM today.",
+        "Update your password to keep your account secure.",
+        "Happy Birthday! Wishing you a wonderful day."
+    ],
+    "label": [
+        "Phishing",
+        "Phishing",
+        "Safe",
+        "Safe",
+        "Phishing",
+        "Safe",
+        "Phishing",
+        "Safe"
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    df["email"],
+    df["label"],
+    test_size=0.25,
+    random_state=42
+)
+
+# Create ML pipeline
+model = Pipeline([
+    ("tfidf", TfidfVectorizer()),
+    ("classifier", MultinomialNB())
+])
+
+# Train model
+model.fit(X_train, y_train)
+
+# Predict
+predictions = model.predict(X_test)
+
+# Evaluation
+print("Accuracy:", accuracy_score(y_test, predictions))
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, predictions))
+
+print("\nClassification Report:")
+print(classification_report(y_test, predictions))
+
+# Test custom email
+print("\n------ Email Prediction ------")
+email = input("Enter an email message: ")
+
+result = model.predict([email])[0]
+
+print("Prediction:", result)
